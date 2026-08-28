@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { workmates } from '../data/workmates'
+import { addToCollection, getDateKey } from '../lib/collection'
 import { formatLocalTime, getActivityForMinute, getLocalMinute, getMateForDate } from '../lib/time'
 import { ActionDock } from './ActionDock'
 import { MateReaction } from './MateReaction'
@@ -18,6 +19,7 @@ const REACTION_POP_DURATION = 420
 export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const [now, setNow] = useState(() => new Date())
   const todayMate = getMateForDate(workmates, now)
+  const dateKey = getDateKey(now)
   const currentActivity = getActivityForMinute(todayMate, getLocalMinute(now))
   const [reaction, setReaction] = useState<string | null>(() => pickTrivia(todayMate.trivia))
   const [reactionPopping, setReactionPopping] = useState(false)
@@ -59,6 +61,10 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
     setReaction(message)
     if (message) scheduleReactionDismiss()
   }, [clearReactionTimers, scheduleReactionDismiss])
+
+  useEffect(() => {
+    addToCollection(todayMate.id, dateKey)
+  }, [dateKey, todayMate.id])
 
   useEffect(() => {
     const clockTimer = window.setInterval(() => {

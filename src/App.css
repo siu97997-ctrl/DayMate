@@ -18,7 +18,7 @@
 .topbar,
 .card-meta,
 .mate-caption,
-.sample-card {
+.collection-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -703,7 +703,7 @@ h2 {
   gap: 28px;
 }
 
-.collection-empty {
+.collection-content {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -736,27 +736,32 @@ h2 {
   font-size: 28px;
 }
 
-.collection-empty h2 {
+.collection-content h2 {
   max-width: 10em;
 }
 
-.collection-empty > p:not(.eyebrow) {
+.collection-hint {
   max-width: 30em;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.7;
 }
 
-.sample-card {
-  gap: 12px;
+.collection-list {
+  display: grid;
+  gap: 10px;
   margin-top: 24px;
+}
+
+.collection-card {
+  gap: 12px;
   padding: 14px;
   border: 1px solid rgba(72, 63, 50, 0.12);
   border-radius: 20px;
   background: rgba(255, 253, 248, 0.7);
 }
 
-.sample-avatar {
+.collection-avatar {
   display: grid;
   width: 46px;
   height: 46px;
@@ -768,23 +773,24 @@ h2 {
   font-size: 23px;
 }
 
-.sample-card > div:nth-child(2) {
+.collection-card-copy {
   min-width: 0;
   flex: 1;
 }
 
-.sample-title,
-.sample-subtitle {
+.collection-title,
+.collection-subtitle,
+.collection-date {
   margin-bottom: 0;
 }
 
-.sample-title {
+.collection-title {
   color: var(--ink);
   font-size: 14px;
   font-weight: 800;
 }
 
-.sample-subtitle {
+.collection-subtitle {
   margin-top: 3px;
   overflow: hidden;
   color: var(--muted);
@@ -793,9 +799,11 @@ h2 {
   white-space: nowrap;
 }
 
-.sample-arrow {
+.collection-date {
   color: var(--accent-deep);
-  font-size: 20px;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 @media (max-width: 360px) {
