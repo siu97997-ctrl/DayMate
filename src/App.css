@@ -256,9 +256,34 @@ h2 {
   transform-origin: top center;
 }
 
-.reaction-bubble:not(.is-visible) {
-  color: rgba(72, 63, 50, 0.48);
-  background: rgba(255, 253, 248, 0.56);
+.reaction-bubble.is-popping {
+  pointer-events: none;
+  animation: reaction-bubble-pop 420ms cubic-bezier(0.4, 0, 0.8, 0.3) forwards;
+}
+
+.reaction-bubble.is-popping::before,
+.reaction-bubble.is-popping::after {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.92);
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reaction-bubble.is-popping::before {
+  top: 18%;
+  left: 14%;
+  animation: reaction-spark-left 420ms ease-out forwards;
+}
+
+.reaction-bubble.is-popping::after {
+  right: 12%;
+  bottom: 18%;
+  animation: reaction-spark-right 420ms ease-out forwards;
 }
 
 .mate-caption {
@@ -365,6 +390,57 @@ h2 {
     opacity: 1;
     filter: blur(0);
     transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes reaction-bubble-pop {
+  0% {
+    opacity: 0.86;
+    filter: blur(0);
+    transform: translateX(-50%) scale(1.5);
+  }
+
+  42% {
+    opacity: 0.95;
+    transform: translateX(-50%) scale(1.62);
+  }
+
+  100% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateX(-50%) scale(0.54);
+  }
+}
+
+@keyframes reaction-spark-left {
+  0% {
+    opacity: 0;
+    transform: translate(-20%, 10%) scale(0.2);
+  }
+
+  28% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-170%, -170%) scale(1.05);
+  }
+}
+
+@keyframes reaction-spark-right {
+  0% {
+    opacity: 0;
+    transform: translate(20%, -10%) scale(0.2);
+  }
+
+  28% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(150%, 160%) scale(0.85);
   }
 }
 
@@ -748,6 +824,9 @@ h2 {
 
   .question-composer,
   .question-composer::before,
+  .reaction-bubble.is-popping,
+  .reaction-bubble.is-popping::before,
+  .reaction-bubble.is-popping::after,
   .mate-profile-popover,
   .mate-profile-popover.is-bursting,
   .mate-profile-popover.is-bursting::before,
