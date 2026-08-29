@@ -10,7 +10,7 @@ export function ActionDock({ name, workMode, onSendQuestion }: ActionDockProps) 
   const [composerOpen, setComposerOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const introPrompt = `你想了解${name}吗？`
+  const introPrompt = `你想问点${name}什么？`
   const questionPrompt = `${workMode}是干什么的？`
 
   useEffect(() => {
@@ -64,7 +64,6 @@ export function ActionDock({ name, workMode, onSendQuestion }: ActionDockProps) 
         </form>
       ) : (
         <button className="action-button" type="button" onClick={() => setComposerOpen(true)}>
-          <span className="action-icon" aria-hidden="true">?</span>
           <span>{introPrompt}</span>
         </button>
       )}

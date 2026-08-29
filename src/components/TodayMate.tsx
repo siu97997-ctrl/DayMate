@@ -14,6 +14,65 @@ function pickTrivia(trivia: string[]) {
   return trivia[Math.floor(Math.random() * trivia.length)] ?? null
 }
 
+const PIXEL_GLYPHS: Record<string, string[]> = {
+  '0': ['01110', '11011', '11011', '11011', '11011', '11011', '01110'],
+  '1': ['00110', '01110', '00110', '00110', '00110', '00110', '11111'],
+  '2': ['01110', '11011', '00011', '00110', '01100', '11000', '11111'],
+  '3': ['01110', '11011', '00011', '00110', '00011', '11011', '01110'],
+  '4': ['11011', '11011', '11011', '11111', '00011', '00011', '00011'],
+  '5': ['11111', '11000', '11110', '00011', '00011', '11011', '01110'],
+  '6': ['01110', '11011', '11000', '11110', '11011', '11011', '01110'],
+  '7': ['11111', '00011', '00110', '01100', '01100', '01100', '01100'],
+  '8': ['01110', '11011', '11011', '01110', '11011', '11011', '01110'],
+  '9': ['01110', '11011', '11011', '01111', '00011', '11011', '01110'],
+  ':': ['00', '00', '11', '11', '00', '11', '11'],
+}
+
+function PixelTime({ value }: { value: string }) {
+  const layout = value.split('').reduce<{
+    offset: number
+    glyphs: Array<{ character: string; glyph: string[]; index: number; x: number }>
+  }>(
+    (result, character, index) => {
+      const glyph = PIXEL_GLYPHS[character] ?? PIXEL_GLYPHS['0']
+      const x = result.offset
+
+      return {
+        offset: result.offset + glyph[0].length + 1,
+        glyphs: [...result.glyphs, { character, glyph, index, x }],
+      }
+    },
+    { offset: 0, glyphs: [] },
+  )
+  const { glyphs } = layout
+
+  return (
+    <svg
+      className="pixel-time"
+      viewBox={`0 0 ${Math.max(1, layout.offset - 1)} 7`}
+      shapeRendering="crispEdges"
+      role="img"
+      aria-label={`当前时间 ${value}`}
+    >
+      {glyphs.map(({ character, glyph, index, x }) =>
+        glyph.map((row, rowIndex) =>
+          [...row].map((cell, columnIndex) =>
+            cell === '1' ? (
+              <rect
+                key={`${character}-${index}-${rowIndex}-${columnIndex}`}
+                x={x + columnIndex}
+                y={rowIndex}
+                width="1"
+                height="1"
+              />
+            ) : null,
+          ),
+        ),
+      )}
+    </svg>
+  )
+}
+
 const REACTION_DURATION = 10_000
 const REACTION_POP_DURATION = 420
 
@@ -29,13 +88,9 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const [reactionPopping, setReactionPopping] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
   const [failedImage, setFailedImage] = useState<string | null>(null)
-  const [profileOpen, setProfileOpen] = useState(false)
-  const [profileBursting, setProfileBursting] = useState(false)
   const mateIdRef = useRef(todayMate.id)
   const reactionDismissTimerRef = useRef<number | null>(null)
   const reactionPopTimerRef = useRef<number | null>(null)
-  const profileTimerRef = useRef<number | null>(null)
-  const burstTimerRef = useRef<number | null>(null)
   const imageSrc = todayMate.image
   const showImage = Boolean(imageSrc) && failedImage !== imageSrc
 
@@ -75,12 +130,6 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
 
     mateIdRef.current = todayMate.id
     setFailedImage(null)
-    setProfileOpen(false)
-    setProfileBursting(false)
-    if (profileTimerRef.current !== null) window.clearTimeout(profileTimerRef.current)
-    if (burstTimerRef.current !== null) window.clearTimeout(burstTimerRef.current)
-    profileTimerRef.current = null
-    burstTimerRef.current = null
     showReaction(pickTrivia(todayMate.trivia))
   }, [showReaction, todayMate.id, todayMate.trivia])
 
@@ -101,13 +150,6 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
       clearReactionTimers()
     }
   }, [clearReactionTimers, scheduleReactionDismiss, todayMate.id])
-
-  useEffect(() => {
-    return () => {
-      if (profileTimerRef.current !== null) window.clearTimeout(profileTimerRef.current)
-      if (burstTimerRef.current !== null) window.clearTimeout(burstTimerRef.current)
-    }
-  }, [])
 
   async function respondToQuestion(question: string) {
     const trimmedQuestion = question.trim()
@@ -146,55 +188,22 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
     setPreviewIndex((index) => (index + direction + workmates.length) % workmates.length)
   }
 
-  function clearProfileTimers() {
-    if (profileTimerRef.current !== null) window.clearTimeout(profileTimerRef.current)
-    if (burstTimerRef.current !== null) window.clearTimeout(burstTimerRef.current)
-    profileTimerRef.current = null
-    burstTimerRef.current = null
-  }
-
-  function dismissProfile() {
-    clearProfileTimers()
-    setProfileBursting(true)
-    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 380
-
-    burstTimerRef.current = window.setTimeout(() => {
-      setProfileOpen(false)
-      setProfileBursting(false)
-      burstTimerRef.current = null
-    }, duration)
-  }
-
-  function openProfile() {
-    clearProfileTimers()
-    setProfileOpen(true)
-    setProfileBursting(false)
-    profileTimerRef.current = window.setTimeout(dismissProfile, 3000)
-  }
-
-  function toggleProfile() {
-    if (profileOpen && !profileBursting) {
-      dismissProfile()
-      return
-    }
-
-    openProfile()
-  }
-
   return (
     <main className="screen today-screen">
       <header className="topbar">
-        <div>
-          <p className="eyebrow" />
-          <h1>DayMate</h1>
+        <div className="brand-link">
+          <img className="brand-logo" src="/brand/elsewise.png" alt="Elsewise" />
         </div>
-        <button className="text-button" type="button" onClick={onOpenCollection}>
-          班友图鉴 <span aria-hidden="true">↗</span>
+        <button className="collection-link" type="button" onClick={onOpenCollection}>
+          <img className="collection-logo" src="/brand/elsewhere.png" alt="在别处" />
         </button>
       </header>
 
       <section className="intro-block" aria-labelledby="today-heading">
-        <p className="time-label">{formatLocalTime(now)}</p>
+        <p className="time-label">
+          <PixelTime value={formatLocalTime(now)} />
+        </p>
+        <p className="activity-summary">正在{currentActivity.label}</p>
         <h2 id="today-heading" />
         <p className="scene-copy" />
       </section>
@@ -260,32 +269,10 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
         </div>
 
         <div className="mate-identity">
-          <div className="identity-row">
-            <span className="mate-name">{todayMate.name}</span>
-            <button
-              className="info-button"
-              type="button"
-              aria-label={`查看 ${todayMate.name} 的职位信息`}
-              aria-expanded={profileOpen && !profileBursting}
-              aria-controls="mate-profile"
-              aria-describedby={profileOpen && !profileBursting ? 'mate-profile' : undefined}
-              onClick={toggleProfile}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') dismissProfile()
-              }}
-            >
-              <span aria-hidden="true">i</span>
-            </button>
-          </div>
-          {profileOpen && (
-            <div
-              id="mate-profile"
-              className={`mate-profile-popover${profileBursting ? ' is-bursting' : ''}`}
-              role="tooltip"
-            >
-              {todayMate.workMode} · {todayMate.background}
-            </div>
-          )}
+          <span className="mate-name">{todayMate.name}</span>
+          <span className="mate-background">
+            {todayMate.workMode} · {todayMate.background}
+          </span>
         </div>
       </section>
 

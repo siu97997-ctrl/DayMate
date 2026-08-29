@@ -8,6 +8,9 @@ export function MateReaction({ message, isPopping }: MateReactionProps) {
 
   return (
     <div className={`reaction-bubble is-visible${isPopping ? ' is-popping' : ''}`} aria-live="polite">
+      <span className="reaction-quote" aria-hidden="true">
+        “
+      </span>
       {message}
     </div>
   )

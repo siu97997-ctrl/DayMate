@@ -45,19 +45,18 @@ export function MateCollection({ onBack, previewMode = false }: MateCollectionPr
 
   return (
     <main className="screen collection-screen">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">DAYMATE / COLLECTION</p>
-          <h1>班友图鉴</h1>
-        </div>
-        <button className="text-button" type="button" onClick={onBack}>
-          返回 <span aria-hidden="true">↙</span>
+      <header className="topbar collection-topbar">
+        <button className="collection-back" type="button" aria-label="返回今日班友" onClick={onBack}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 10.7 12 3l9 7.7v8.1a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.1H9.3V20H4.2A1.2 1.2 0 0 1 3 18.8z" />
+          </svg>
         </button>
       </header>
 
-      <section className="collection-content" aria-label="班友图鉴">
-        <p className="eyebrow">A SMALL ARCHIVE</p>
-        <h2>每种工作方式，都值得被看见。</h2>
+      <section className="collection-content" aria-label="别处生物图鉴">
+        <p className="collection-kicker">Same moment, lived otherwise</p>
+        <h2>记录每一次来自别处的相遇</h2>
+        <h1 className="collection-title">别处生物图鉴</h1>
         <div
           className="collection-board-viewport"
           onPointerDown={handlePointerDown}
@@ -71,7 +70,7 @@ export function MateCollection({ onBack, previewMode = false }: MateCollectionPr
             style={{ transform: 'translateX(-' + page * 100 + '%)' }}
           >
             {pages.map((mates, pageIndex) => (
-              <div className="collection-board" key={pageIndex} aria-label={'第 ' + (pageIndex + 1) + ' 个班友图鉴'}>
+              <div className="collection-board" key={pageIndex} aria-label={'第 ' + (pageIndex + 1) + ' 个别处生物图鉴'}>
                 {mates.length > 0 ? (
                   mates.map((mate) => (
                     <button
