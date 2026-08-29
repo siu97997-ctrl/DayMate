@@ -14,6 +14,11 @@ function pickTrivia(trivia: string[]) {
   return trivia[Math.floor(Math.random() * trivia.length)] ?? null
 }
 
+// 同一活动有多个素材时，首版固定使用 01，避免时钟刷新导致画面跳变。
+function getSceneImagePath(mateId: string, activityId: string) {
+  return `/scenes/${mateId}/${activityId}01.png`
+}
+
 const PIXEL_GLYPHS: Record<string, string[]> = {
   '0': ['01110', '11011', '11011', '11011', '11011', '11011', '01110'],
   '1': ['00110', '01110', '00110', '00110', '00110', '00110', '11111'],
@@ -84,15 +89,13 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const todayMate = previewMate ?? getMateForDate(workmates, now)
   const dateKey = getDateKey(now)
   const currentActivity = getActivityForMinute(todayMate, getLocalMinute(now))
+  const sceneImage = getSceneImagePath(todayMate.id, currentActivity.id)
   const [reaction, setReaction] = useState<string | null>(() => pickTrivia(todayMate.trivia))
   const [reactionPopping, setReactionPopping] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
-  const [failedImage, setFailedImage] = useState<string | null>(null)
   const mateIdRef = useRef(todayMate.id)
   const reactionDismissTimerRef = useRef<number | null>(null)
   const reactionPopTimerRef = useRef<number | null>(null)
-  const imageSrc = todayMate.image
-  const showImage = Boolean(imageSrc) && failedImage !== imageSrc
 
   const clearReactionTimers = useCallback(() => {
     if (reactionDismissTimerRef.current !== null) window.clearTimeout(reactionDismissTimerRef.current)
@@ -129,7 +132,6 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
     if (mateIdRef.current === todayMate.id) return
 
     mateIdRef.current = todayMate.id
-    setFailedImage(null)
     showReaction(pickTrivia(todayMate.trivia))
   }, [showReaction, todayMate.id, todayMate.trivia])
 
@@ -224,23 +226,19 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
             }}
           >
             <div className="avatar-halo" aria-hidden="true" />
-            {showImage && imageSrc ? (
-              <img
-                className="mate-image"
-                src={imageSrc}
-                alt=""
-                onError={() => setFailedImage(imageSrc)}
-              />
-            ) : (
-              <div className="avatar-fallback" aria-hidden="true">
-                <div className="avatar-face">
-                  <span className="avatar-eye left" />
-                  <span className="avatar-eye right" />
-                  <span className="avatar-mouth" />
-                </div>
-                <div className="avatar-body" />
-              </div>
-            )}
+            <img
+              key={sceneImage}
+              className="mate-image"
+              src={sceneImage}
+              alt=""
+              onError={(event) => {
+                const image = event.currentTarget
+                if (todayMate.image && image.dataset.fallback !== '1') {
+                  image.dataset.fallback = '1'
+                  image.src = todayMate.image
+                }
+              }}
+            />
           </div>
           {previewMode && (
             <div className="preview-controls" aria-label="预览班友切换">
