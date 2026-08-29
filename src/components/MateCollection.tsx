@@ -44,7 +44,13 @@ export function MateCollection({ onBack }: MateCollectionProps) {
           <div className="collection-list">
             {cards.map(({ entry, mate }) => (
               <article className="collection-card" key={`${entry.mateId}-${entry.dateKey}`}>
-                <div className="collection-avatar" aria-hidden="true">{mate.name.slice(0, 1)}</div>
+                <div className="collection-avatar" aria-hidden="true">
+                  {mate.image ? (
+                    <img className="collection-avatar-image" src={mate.image} alt="" loading="lazy" />
+                  ) : (
+                    mate.name.slice(0, 1)
+                  )}
+                </div>
                 <div className="collection-card-copy">
                   <p className="collection-title">{mate.name}</p>
                   <p className="collection-subtitle">{mate.workMode} · {mate.background}</p>

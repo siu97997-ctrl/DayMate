@@ -8,6 +8,7 @@ export type WorkmateActivity = {
 
 export type Workmate = {
   id: string
+  image?: string
   name: string
   workMode: string
   background: string
@@ -23,6 +24,7 @@ export type Workmate = {
 export const workmates: Workmate[] = [
   {
     id: 'digital-nomad',
+    image: '/characters/digital-nomad.png',
     name: 'duoduo',
     workMode: '数字游民',
     background: '远程产品设计师',
@@ -55,6 +57,7 @@ export const workmates: Workmate[] = [
   },
   {
     id: 'momo',
+    image: '/characters/momo.png',
     name: '摩摩',
     workMode: '早班手艺人',
     background: '独立咖啡馆咖啡师',
@@ -88,6 +91,7 @@ export const workmates: Workmate[] = [
   },
   {
     id: 'xingye',
+    image: '/characters/xingye.png',
     name: '星野',
     workMode: '在轨协作',
     background: '空间站任务航天员',
@@ -123,6 +127,7 @@ export const workmates: Workmate[] = [
   },
   {
     id: 'maimai',
+    image: '/characters/maimai.png',
     name: '麦麦',
     workMode: '独立内容创作',
     background: '播客主理人',
@@ -156,6 +161,7 @@ export const workmates: Workmate[] = [
   },
   {
     id: 'ajiao',
+    image: '/characters/ajiao.png',
     name: '阿焦',
     workMode: '野外长期蹲守',
     background: '动物纪录片摄影师',
@@ -188,5 +194,5 @@ export const workmates: Workmate[] = [
   },
 ]
 
-// M1 页面仍显示 duoduo；M2.2 再根据日期和本地时间选择班友与活动。
+// 兼容旧代码：默认导出第一位班友。
 export const digitalNomad = workmates[0]

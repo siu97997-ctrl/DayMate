@@ -18,11 +18,15 @@ const REACTION_POP_DURATION = 420
 
 export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const [now, setNow] = useState(() => new Date())
-  const todayMate = getMateForDate(workmates, now)
+  const previewMode = new URLSearchParams(window.location.search).get('preview') === '1'
+  const [previewIndex, setPreviewIndex] = useState(0)
+  const previewMate = previewMode ? workmates[previewIndex] ?? workmates[0] : undefined
+  const todayMate = previewMate ?? getMateForDate(workmates, now)
   const dateKey = getDateKey(now)
   const currentActivity = getActivityForMinute(todayMate, getLocalMinute(now))
   const [reaction, setReaction] = useState<string | null>(() => pickTrivia(todayMate.trivia))
   const [reactionPopping, setReactionPopping] = useState(false)
+  const [failedImage, setFailedImage] = useState<string | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const [profileBursting, setProfileBursting] = useState(false)
   const mateIdRef = useRef(todayMate.id)
@@ -30,6 +34,8 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const reactionPopTimerRef = useRef<number | null>(null)
   const profileTimerRef = useRef<number | null>(null)
   const burstTimerRef = useRef<number | null>(null)
+  const imageSrc = todayMate.image
+  const showImage = Boolean(imageSrc) && failedImage !== imageSrc
 
   const clearReactionTimers = useCallback(() => {
     if (reactionDismissTimerRef.current !== null) window.clearTimeout(reactionDismissTimerRef.current)
@@ -63,23 +69,28 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
   }, [clearReactionTimers, scheduleReactionDismiss])
 
   useEffect(() => {
-    addToCollection(todayMate.id, dateKey)
-  }, [dateKey, todayMate.id])
+    if (mateIdRef.current === todayMate.id) return
+
+    mateIdRef.current = todayMate.id
+    setFailedImage(null)
+    setProfileOpen(false)
+    setProfileBursting(false)
+    if (profileTimerRef.current !== null) window.clearTimeout(profileTimerRef.current)
+    if (burstTimerRef.current !== null) window.clearTimeout(burstTimerRef.current)
+    profileTimerRef.current = null
+    burstTimerRef.current = null
+    showReaction(pickTrivia(todayMate.trivia))
+  }, [showReaction, todayMate.id, todayMate.trivia])
 
   useEffect(() => {
-    const clockTimer = window.setInterval(() => {
-      const nextNow = new Date()
-      const nextMate = getMateForDate(workmates, nextNow)
+    if (previewMode) return
+    addToCollection(todayMate.id, dateKey)
+  }, [dateKey, previewMode, todayMate.id])
 
-      if (nextMate.id !== mateIdRef.current) {
-        mateIdRef.current = nextMate.id
-        showReaction(pickTrivia(nextMate.trivia))
-      }
-
-      setNow(nextNow)
-    }, 30_000)
+  useEffect(() => {
+    const clockTimer = window.setInterval(() => setNow(new Date()), 30_000)
     return () => window.clearInterval(clockTimer)
-  }, [showReaction])
+  }, [])
 
   useEffect(() => {
     scheduleReactionDismiss()
@@ -104,6 +115,10 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
 
   function showCurrentActivity() {
     showReaction(currentActivity.bubble)
+  }
+
+  function movePreview(direction: number) {
+    setPreviewIndex((index) => (index + direction + workmates.length) % workmates.length)
   }
 
   function clearProfileTimers() {
@@ -175,13 +190,47 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
             }}
           >
             <div className="avatar-halo" aria-hidden="true" />
-            <div className="avatar-face">
-              <span className="avatar-eye left" aria-hidden="true" />
-              <span className="avatar-eye right" aria-hidden="true" />
-              <span className="avatar-mouth" aria-hidden="true" />
-            </div>
-            <div className="avatar-body" aria-hidden="true" />
+            {showImage && imageSrc ? (
+              <img
+                className="mate-image"
+                src={imageSrc}
+                alt=""
+                onError={() => setFailedImage(imageSrc)}
+              />
+            ) : (
+              <div className="avatar-fallback" aria-hidden="true">
+                <div className="avatar-face">
+                  <span className="avatar-eye left" />
+                  <span className="avatar-eye right" />
+                  <span className="avatar-mouth" />
+                </div>
+                <div className="avatar-body" />
+              </div>
+            )}
           </div>
+          {previewMode && (
+            <div className="preview-controls" aria-label="预览班友切换">
+              <button
+                className="preview-arrow"
+                type="button"
+                aria-label="上一个班友"
+                onClick={() => movePreview(-1)}
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <span className="preview-status" aria-live="polite">
+                {previewIndex + 1} / {workmates.length}
+              </span>
+              <button
+                className="preview-arrow"
+                type="button"
+                aria-label="下一个班友"
+                onClick={() => movePreview(1)}
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          )}
           <MateReaction message={reaction} isPopping={reactionPopping} />
         </div>
 
@@ -216,6 +265,7 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
       </section>
 
       <ActionDock
+        key={todayMate.id}
         name={todayMate.name}
         workMode={todayMate.workMode}
         onSendQuestion={respondToQuestion}
