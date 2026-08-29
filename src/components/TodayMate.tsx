@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { workmates } from '../data/workmates'
 import { addToCollection, getDateKey } from '../lib/collection'
+import { askDeepSeek } from '../lib/chat'
 import { formatLocalTime, getActivityForMinute, getLocalMinute, getMateForDate } from '../lib/time'
 import { ActionDock } from './ActionDock'
 import { MateReaction } from './MateReaction'
@@ -26,6 +27,7 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
   const currentActivity = getActivityForMinute(todayMate, getLocalMinute(now))
   const [reaction, setReaction] = useState<string | null>(() => pickTrivia(todayMate.trivia))
   const [reactionPopping, setReactionPopping] = useState(false)
+  const [isReplying, setIsReplying] = useState(false)
   const [failedImage, setFailedImage] = useState<string | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const [profileBursting, setProfileBursting] = useState(false)
@@ -107,9 +109,26 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
     }
   }, [])
 
-  function respondToQuestion(question: string) {
-    if (question.trim()) {
-      showReaction(currentActivity.id === 'sleep' ? currentActivity.bubble : todayMate.questionReply)
+  async function respondToQuestion(question: string) {
+    const trimmedQuestion = question.trim()
+    if (!trimmedQuestion || isReplying) return
+
+    if (currentActivity.id === 'sleep') {
+      showReaction(currentActivity.bubble)
+      return
+    }
+
+    const requestMateId = todayMate.id
+    setIsReplying(true)
+    showReaction('让我想想……')
+
+    try {
+      const answer = await askDeepSeek(trimmedQuestion, todayMate, currentActivity)
+      if (mateIdRef.current === requestMateId) showReaction(answer)
+    } catch {
+      if (mateIdRef.current === requestMateId) showReaction(todayMate.questionReply)
+    } finally {
+      setIsReplying(false)
     }
   }
 
