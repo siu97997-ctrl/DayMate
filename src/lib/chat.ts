@@ -1,5 +1,11 @@
 import type { Workmate, WorkmateActivity } from '../data/workmates'
 
+type ChatContext = {
+  localDate: string
+  localTime: string
+  timeZone: string
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -8,21 +14,25 @@ export async function askDeepSeek(
   question: string,
   mate: Workmate,
   activity: WorkmateActivity,
+  context: ChatContext,
 ): Promise<string> {
   const response = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       question,
+      context,
       mate: {
         name: mate.name,
         workMode: mate.workMode,
         background: mate.background,
         persona: mate.persona,
         voice: mate.voice,
-        catchphrases: mate.catchphrases,
         trivia: mate.trivia,
+        facts: mate.facts,
+        faqs: mate.faqs,
         currentActivity: {
+          id: activity.id,
           label: activity.label,
           bubble: activity.bubble,
         },

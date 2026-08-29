@@ -119,14 +119,20 @@ export function TodayMate({ onOpenCollection }: TodayMateProps) {
     }
 
     const requestMateId = todayMate.id
+    const requestActivity = currentActivity
+    const requestContext = {
+      localDate: dateKey,
+      localTime: formatLocalTime(now),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '本地时区',
+    }
     setIsReplying(true)
     showReaction('让我想想……')
 
     try {
-      const answer = await askDeepSeek(trimmedQuestion, todayMate, currentActivity)
+      const answer = await askDeepSeek(trimmedQuestion, todayMate, requestActivity, requestContext)
       if (mateIdRef.current === requestMateId) showReaction(answer)
     } catch {
-      if (mateIdRef.current === requestMateId) showReaction(todayMate.questionReply)
+      if (mateIdRef.current === requestMateId) showReaction(requestActivity.bubble)
     } finally {
       setIsReplying(false)
     }

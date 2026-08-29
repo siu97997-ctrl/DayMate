@@ -6,6 +6,11 @@ export type WorkmateActivity = {
   bubble: string
 }
 
+export type WorkmateFAQ = {
+  keywords: string[]
+  answer: string
+}
+
 export type Workmate = {
   id: string
   image?: string
@@ -17,6 +22,8 @@ export type Workmate = {
   catchphrases: string[]
   questionReply: string
   trivia: string[]
+  facts: Record<string, string>
+  faqs: WorkmateFAQ[]
   activities: WorkmateActivity[]
 }
 
@@ -44,6 +51,8 @@ export const workmates: Workmate[] = [
       '突然想到，location independent其实比数字游民这个词准确，重点是自由，不是流浪。',
       '游民换城市跟换工位一样，行李标配一台笔记本加一个背包。我的家当，全在身上。',
     ],
+    facts: {},
+    faqs: [],
     activities: [
       { id: 'sleep', label: '睡眠', startMinute: 0, endMinute: 480, bubble: 'Zzz……地球另一边的朋友，刚下班……' },
       { id: 'change-office', label: '换办公室', startMinute: 480, endMinute: 540, bubble: '换办公室啦！今天的工位面朝稻田，插座就在脚边，完美！' },
@@ -76,6 +85,13 @@ export const workmates: Workmate[] = [
       '填压要是压得不匀，水就会从缝里偷跑，那杯又涩又薄。行话叫通道效应，防不胜防。',
       '我们杯测时要使劲啜吸，声音越大越专业！你哪天在店里听到\'呲溜呲溜\'，那是行家。',
       '今天湿度变了，研磨度就得重调一遍。所以每天的味道都不一样，这就是手艺活儿呀。',
+    ],
+    facts: {},
+    faqs: [
+      {
+        keywords: ['店名', '店叫什么', '咖啡馆叫什么'],
+        answer: '我在一家独立咖啡馆上早班，店名还没有设定，我不想乱编。',
+      },
     ],
     activities: [
       { id: 'sleep', label: '睡眠', startMinute: 0, endMinute: 360, bubble: 'Zzz……太阳都还没上班呢……几点了这是……' },
@@ -111,6 +127,8 @@ export const workmates: Workmate[] = [
       '真空中没有声音。太空是彻底的安静，有时候安静得能听见自己的心跳。',
       '每天的时间表由地面排到每5分钟，连吃饭和锻炼都有时刻。自由很少，但很清楚。',
     ],
+    facts: {},
+    faqs: [],
     activities: [
       { id: 'sleep', label: '睡眠', startMinute: 0, endMinute: 360, bubble: '已进睡袋，眼罩戴好。窗外是今天的第9次日出……地面，晚安。' },
       { id: 'morning-prep', label: '晨间准备', startMinute: 360, endMinute: 420, bubble: '起床了。洗漱完毕，早餐在复水，今天的任务清单也收到了。' },
@@ -152,6 +170,14 @@ export const workmates: Workmate[] = [
       '播客变现三板斧，品牌口播、付费订阅、听友社群。为爱发电两年，刚刚插上电。',
       '行业里都认完播率比播放量重要，留存比拉新值钱。别看数字，看人。',
     ],
+    facts: {},
+    faqs: [
+      {
+        keywords: ['做播客能赚钱吗', '播客赚钱吗', '播客怎么赚钱', '播客变现'],
+        answer:
+          '能，但慢。变现三板斧是品牌口播、付费订阅和听友社群。前两年基本靠热爱发电，但100个铁杆听众，往往比10000个路过的更有价值。',
+      },
+    ],
     activities: [
       { id: 'wind-down', label: '输入放松', startMinute: 0, endMinute: 60, bubble: '摸鱼时间～追剧刷帖都算选题会！等一下，这段好像能播……' },
       { id: 'sleep', label: '睡眠', startMinute: 60, endMinute: 540, bubble: 'Zzz……最后一条听众私信，回完了……' },
@@ -186,6 +212,8 @@ export const workmates: Workmate[] = [
       '总有人问我拍摄地点。这个不能说，为了它们。这不是神秘，是保护。',
       '无人机改变了这行。但最好的镜头，还是要人扛着机器，一步一步走进去。',
     ],
+    facts: {},
+    faqs: [],
     activities: [
       { id: 'sleep', label: '睡眠', startMinute: 0, endMinute: 270, bubble: '……睡了。四点半的闹钟上好了，全队我第一个起。' },
       { id: 'night-departure', label: '夜行出发', startMinute: 270, endMinute: 330, bubble: '嘘，摸黑进山了。红头灯只照脚底，天亮前要进掩体。' },
