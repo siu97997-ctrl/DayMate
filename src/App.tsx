@@ -7,11 +7,12 @@ type Page = 'today' | 'collection'
 
 function App() {
   const [page, setPage] = useState<Page>('today')
+  const previewMode = new URLSearchParams(window.location.search).get('preview') === '1'
 
   return page === 'today' ? (
     <TodayMate onOpenCollection={() => setPage('collection')} />
   ) : (
-    <MateCollection onBack={() => setPage('today')} />
+    <MateCollection previewMode={previewMode} onBack={() => setPage('today')} />
   )
 }
 
