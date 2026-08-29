@@ -1,75 +1,131 @@
-# React + TypeScript + Vite
+# Elsewise｜生活在别处
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Same moment, lived otherwise.
 
-Currently, two official plugins are available:
+Elsewise 是一个轻陪伴式“工作方式观察”移动网页：用户打开页面，遇见一个来自别处的班友，看看它此刻如何工作与生活。它不是宠物养成、打卡工具或职业测评，而是一段低负担的平行日常。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 项目背景
 
-## React Compiler
+我们经常看到职位名称，却很少看见劳动发生的具体瞬间。Elsewise 将抽象的职业信息转成有时间节律、有角色语气的工作片段，让用户在几分钟内理解不同的人如何安排一天、使用工具和面对工作。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+产品定位是：轻陪伴 + 微型工作方式见闻 + 审美化互动。它不宣称解决孤独、职业选择或效率问题。
 
-## Expanding the ESLint configuration
+## 目标用户
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 在工作或学习间隙想获得一点新鲜感的移动端用户
+- 对不同工作方式、职业和行业细节感到好奇的人
+- 喜欢轻量互动、角色叙事和视觉内容，但不想被任务和打卡绑定的人
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 核心体验
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. 打开“今日班友”，看到当天角色、真实本地时间、当前活动和对应场景图。
+2. 点击角色，看到符合其人设的状态气泡；气泡约 10 秒后以泡泡破裂动画消失。
+3. 输入关于角色工作方式、职业或行业的问题；预设事实优先，再由已部署的 DeepSeek 服务端代理回答。
+4. 打开“别处生物图鉴”，浏览已经遇见的班友；路演可用 `?preview=1` 预览并切换全部角色。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 当前已实现
 
+- 5 位班友：数字游民、早班手艺人、在轨协作、独立内容创作、野外长期蹲守。
+- 每位班友拥有独立的活动时间表，按照用户本地时间选择当前状态。
+- 正常模式每天固定一位班友；角色选择和图鉴收藏保存在当前浏览器的 `localStorage` 中。
+- 按角色和活动组织的场景 PNG；活动图片缺失时回退到角色主图。
+- 今日页与“别处生物图鉴”双页面，无路由依赖；图鉴支持分页、滑动和角色简介。
+- 像素风时间显示、响应式移动端布局、角色轻微呼吸与阴影动效。
+- 角色点击气泡、提问输入框、键盘操作和气泡自动消失动画。
+- `api/chat.ts` 已部署为 DeepSeek 服务端代理：先匹配固定问答/事实/当前状态，再调用模型。
+
+## 技术栈
+
+- React 19 + TypeScript
+- Vite 8
+- 原生 CSS 与 SVG
+- 浏览器 `localStorage`（每日班友与图鉴收藏）
+- 原生 Pointer Events 与键盘事件
+- DeepSeek Chat API（通过 `api/chat.ts` 服务端代理）
+- GitHub 版本管理；静态前端可部署到腾讯云等托管平台
+
+项目不使用 UI 框架、拖拽库或其他运行时依赖，便于快速修改和路演部署。
+
+## 创新点
+
+1. **从职业标签转向工作方式观察**：呈现“此刻正在做什么”，而不是只展示职位名称。
+2. **每个角色有自己的时间节律**：同一班友会在一天中经历不同活动，形成连续的平行日常。
+3. **观察而非操控**：用户偶尔靠近、点击和提问，不需要喂养、打卡或完成任务。
+4. **可控内容与开放问答结合**：人设、事实白名单和活动状态先保证稳定性，再把开放问题交给模型。
+5. **零登录、低负担**：打开即看，数据优先保存在本地，适合碎片时间和现场演示。
+
+## 本地运行
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+常用检查命令：
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run lint
+npm run build
+npm run preview
 ```
+
+路演预览模式：在开发地址后加 `?preview=1`，例如 `http://localhost:5173/?preview=1`。
+
+## 项目结构
+
+```text
+src/
+  data/workmates.ts       班友、人设、事实、活动时间表
+  lib/time.ts             本地时间与每日班友选择
+  lib/collection.ts       localStorage 图鉴收藏
+  lib/chat.ts             前端问答请求
+  components/             今日页、图鉴、输入框和气泡组件
+  App.tsx                 两页状态切换
+  App.css                 页面视觉样式
+api/
+  chat.ts                 DeepSeek 服务端代理
+public/
+  brand/                  品牌图片
+  characters/             角色主图
+  scenes/                 按角色/活动组织的场景图
+```
+
+## 开发过程
+
+- **M0**：Vite + React + TypeScript 工程初始化与本地版本管理
+- **M1.1**：两页页面骨架、提问入口、角色信息与基础交互
+- **M2.x**：5 位班友、各自活动时间表、角色气泡、本地图鉴收藏
+- **M3 / M3.1**：角色素材、按活动切换场景图、路演预览模式
+- **M4 / M4.1**：DeepSeek 代理、当前时间与固定事实约束、错误降级
+- **M5**：图鉴布局、品牌视觉和移动端 UI 收口
+
+## 部署与 API 说明
+
+构建后，`dist/` 是可直接发布的静态前端产物：
+
+```bash
+npm run build
+```
+
+DeepSeek 问答函数已完成部署并稳定运行。静态网站托管只发布前端文件，因此 `api/chat.ts` 继续运行在独立的 Serverless/Node `fetch` 环境，前端的 `/api/chat` 指向该函数。服务端配置：
+
+```text
+DEEPSEEK_API_KEY=你的服务端密钥
+```
+
+密钥不能写进前端、不能使用 `VITE_` 前缀，也不能提交到 Git。线上链接和 API 状态以实际部署后的首页与 `/api/chat` 验证为准。
+
+## 后续计划
+
+- 持续监控 DeepSeek 函数，补充超时、限流、错误降级和成本控制
+- 校验每个活动的多张场景图，完善图片与时间线的映射和切换策略
+- 继续优化轻微角色动效，并关注低端手机性能
+- 增加更多工作方式与可核对的职业资料
+- 补充自动化测试、无障碍检查和真实手机 QA
+- 如有跨设备需求，再考虑把本地收藏迁移到后端
+
+## 隐私与当前限制
+
+项目不需要登录。每日班友和图鉴收藏默认只保存在当前浏览器，不会自动跨设备同步。DeepSeek 问答由已部署的后端函数提供；密钥只保存在服务端环境变量，静态托管本身不承载该函数。
+
+`docs/brief.md` 记录的是早期 M1.1 范围，README 以当前代码实现为准。
